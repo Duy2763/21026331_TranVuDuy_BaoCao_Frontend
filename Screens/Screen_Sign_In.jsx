@@ -1,9 +1,8 @@
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { useEffect, useState, useCallback } from "react";
-import { Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { getAccounts, loginAccount } from "../api";
+import React, { useState } from 'react';
+import { View, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, Image } from 'react-native';
+import { useNavigation } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
-import { useCart } from "../contextCart";
+import { createAccount } from '../api'; // Adjust the import path as needed
 
 const toastConfig = {
     error: ({ text1, text2, props }) => (
@@ -27,37 +26,32 @@ const toastConfig = {
     ),
 };
 
-export default function Screen1() {
+export default function Screen_Sign_In() {
     const navigation = useNavigation();
-    const [accounts, setAccounts] = useState([]);
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [idUserInSession, setIdUserInSession] = useState(0);
-    const { updateAccountInSession, accountInSession } = useCart();
 
-    useFocusEffect(
-        useCallback(() => {
-            fetchAccount();
-        }, [])
-    );
-
-    const fetchAccount = async () => {
-        const data = await getAccounts();
-        console.log(data);
-        setAccounts(data);
-    }
-
-    function checkAccount(name, password) {
-        return accounts.some(acc => acc.name === name && acc.password === password);
-    }
+    const handleSignUp = () => {
+        createAccount(name, password)
+            .then(() => {
+                navigation.navigate("Screen1");
+            })
+            .catch(error => {
+                console.error('Error creating account', error);
+            });
+    };
 
     return (
         <SafeAreaView style={{flex: 1}}>
             <View style={styles.container}>
                 <View style={{alignItems: "center", gap: 10, marginBottom: 64}}>
-                    <Text style={{fontSize: 40, fontWeight: 'bold', marginTop: 48}}>Hello Again!</Text>
-                    <Text style={{fontSize: 18, color: 'gray', }}>Sign in your account</Text>
+                    <Image 
+                        source={require('../assets/images/icon.png')}
+                        style={{width: 80, height: 80}}
+                    />
+                    <Text style={{fontSize: 40, fontWeight: 'bold', marginTop: 8}}>Hello Again!</Text>
+                    <Text style={{fontSize: 18, color: 'gray', }}>Sign up your account</Text>
                 </View>
                 <View style={{gap: 28}}>
                     <View style={styles.groupInput}>
@@ -83,7 +77,7 @@ export default function Screen1() {
                         <TouchableOpacity onPress={() => setShowPassword(!showPassword)}> 
                             <Image
                                 style={{width: 20, height: 20}}
-                                source={showPassword ? require('../assets/images/eye.png') : require('../assets/images/eyeLock.png')} // Thay đổi logic
+                                source={showPassword ? require('../assets/images/eye.png') : require('../assets/images/eyeLock.png')}
                             />
                         </TouchableOpacity>
                     </View>
@@ -98,50 +92,27 @@ export default function Screen1() {
                         borderRadius: 16,
                         padding: 14
                     }}
-                    onPress={async () => {
-                        if (checkAccount(name, password)) {
-                            try {
-                                const data = await loginAccount(name, password);
-                                updateAccountInSession(data);
-                                navigation.navigate("Screen2");
-                            } catch (error) {
-                                console.error('Error:', error);
-                            }
-                        } else {
-                            Toast.show({
-                                type: 'error',
-                                text1: 'Warning',
-                                text2: 'Name or password is not correct',
-                                position: 'top',
-                                visibilityTime: 2000,
-                            });
-                        }
-                    }}
-                >
-                    <Text style={{color: '#fff', fontSize: 20}}>Continue</Text>
+                    onPress={handleSignUp}
+                    >
+                    <Text style={{color: '#fff', fontSize: 20}}>Sign up</Text>
                 </TouchableOpacity>
                 <View style={{flexDirection: 'row', alignItems: 'center', gap: 16, width: "100%", justifyContent: 'center', marginTop: 25, marginBottom: 20}}> 
                     <View style={{width: "40%", height: 1, backgroundColor: 'lightgray'}}></View>
                     <Text style={{fontSize: 20, color: 'gray'}}>or</Text>
                     <View style={{width: "44%", height: 1, backgroundColor: 'lightgray'}}></View>
                 </View>
-                <View style={{flexDirection: 'row', gap: 10, justifyContent: 'center'}}>
-                    <TouchableOpacity>
-                        <Image
-                            source={require('../assets/images/google.png')}
-                        />
-                    </TouchableOpacity>
-                    <TouchableOpacity>
-                        <Image
-                            source={require('../assets/images/face.png')}
-                        />
-                    </TouchableOpacity>
-                    <TouchableOpacity>
-                        <Image
-                            source={require('../assets/images/apple.png')}
-                         />
-                    </TouchableOpacity>
-                </View>
+                <TouchableOpacity 
+                    style={{
+                        alignItems: 'center',
+                        borderRadius: 16,
+                        padding: 14,
+                    }}
+                    onPress={() => {
+                        navigation.navigate("Screen1", { name });
+                    }}
+                    >
+                    <Text style={{color: 'gray', fontSize: 20,  textDecorationLine: 'underline'}}>Sign in</Text>
+                </TouchableOpacity>
                 <Toast config={toastConfig} />
             </View>
         </SafeAreaView>
@@ -167,4 +138,4 @@ const styles = StyleSheet.create({
         fontSize: 20,
         flex: 1,
     }
-})
+});

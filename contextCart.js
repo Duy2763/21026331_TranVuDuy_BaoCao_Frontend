@@ -9,10 +9,17 @@ export function useCart() {
 
 export function CartProvider({children}) {
     const [carts, setCarts] = useState([])
-
     const [name, setName] = useState('');
-
+    const [ accountInSession, setAccountInSession ] = useState({});
     
+    const updateAccountInSession = (user) => {
+        setAccountInSession(user)
+    }
+
+    const resetAccountInSession = () => {
+        setAccountInSession({})
+    }
+
     const resetQuantity = () => {
         setCarts(carts.map(cart => 
            ({...cart, sl: 0}) 
@@ -48,7 +55,7 @@ export function CartProvider({children}) {
     }
 
     return (
-        <CartContext.Provider value={{carts, addCart, deleteCart, updateQuantity, decrementQuantity, checkExist, resetQuantity}}>
+        <CartContext.Provider value={{carts, addCart, deleteCart, updateQuantity, decrementQuantity, checkExist, resetQuantity, accountInSession, updateAccountInSession, resetAccountInSession }}>
             {children}
         </CartContext.Provider>
     )
